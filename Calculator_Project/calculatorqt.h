@@ -6,8 +6,7 @@
 #include "ui_calculator_window.h"
 #include "equation.h"
 
-class CalculatorQt : public QMainWindow
-{
+class CalculatorQt : public QMainWindow{
 	Q_OBJECT
 
 public:
