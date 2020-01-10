@@ -31,12 +31,6 @@
     <ClCompile Include="calculatorqt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="operation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="equation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="calculatorqt.h">
@@ -50,12 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Generated_Files\ui_calculator_window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="operation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="equation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

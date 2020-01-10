@@ -1,3 +1,6 @@
+#include "pch.h"
+#include "framework.h"
+
 #include "Equation.h"
 #include <limits>
 #include <iostream>

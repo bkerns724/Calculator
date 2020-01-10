@@ -14,7 +14,7 @@
     <ProjectGuid>{B12702AD-ABFB-343A-A199-8E24837244A3}</ProjectGuid>
     <Keyword>QtVS_v301</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Calculator_Project</ProjectName>
+    <ProjectName>Interface</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -68,6 +68,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <AdditionalIncludeDirectories>C:\Users\15024\Desktop\Calculator_Solution\Calculation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -81,6 +82,7 @@
       <DebugInformationFormat />
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <AdditionalIncludeDirectories>C:\Users\15024\Desktop\Calculator_Solution\Calculation;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -90,9 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="calculatorqt.cpp" />
-    <ClCompile Include="equation.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="operation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="calculatorqt.h" />
@@ -104,9 +104,12 @@
     </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="equation.h" />
     <ClInclude Include="Generated_Files\ui_calculator_window.h" />
-    <ClInclude Include="operation.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Calculation\Calculation.vcxproj">
+      <Project>{216ab66d-4439-4f13-8c85-0082a9ecf161}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
