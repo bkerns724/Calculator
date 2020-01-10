@@ -27,6 +27,9 @@
     <ClInclude Include="operation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="equationErrorMessages.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

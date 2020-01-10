@@ -93,6 +93,7 @@ bool equation::ParseString()
 					return false;
 				}
 			case ' ':
+			case '\n':
 			case '\t':
 				if (numberStarted)
 				{
@@ -147,7 +148,7 @@ bool equation::ParseString()
 				}
 				else
 				{
-					errorMessage = "Multiple decimal points in a single number, not a valid equation.";
+					errorMessage = doubleDecErrorMessage;
 					return false;
 				}
 
@@ -176,7 +177,6 @@ bool equation::ParseString()
 						errorMessage = "Right parenthesis without matching left parenthesis, not a valid equation.";
 						return false;
 					}
-					expectingOperator = true;
 					if (hasNumeric)
 					{
 						double number = atof(numberString.c_str());
@@ -185,6 +185,7 @@ bool equation::ParseString()
 						numberStarted = false;
 						acceptingDecimal = true;
 						hasNumeric = false;
+						expectingOperator = true;
 					}
 					else
 					{
@@ -244,7 +245,7 @@ bool equation::ParseString()
 				operations.push_back(tempOperation);
 				continue;
 			default:
-				errorMessage = "Unexpected character in input string, not a valid equation.";
+				errorMessage = invalidCharErrorMessage;
 				return false;
 			}
 		}
@@ -258,6 +259,7 @@ bool equation::ParseString()
 				errorMessage = "Left parenthesis in unexpected location, not a valid equation.";
 				return false;
 			case ' ':
+			case '\n':
 			case '\t':
 				continue;
 			case '1':
@@ -270,10 +272,10 @@ bool equation::ParseString()
 			case '8':
 			case '9':
 			case '0':
-				errorMessage = "Number in unexpected location, not a valid equation.";
+				errorMessage = numWhereOperErrorMessage;
 				return false;
 			case '.':
-				errorMessage = "Decimal point in unexpected location, not a valid equation.";
+				errorMessage = decWhereOperErrorMessage;
 				return false;
 			case ')':
 				parenthesesCount--;
@@ -302,7 +304,7 @@ bool equation::ParseString()
 				acceptingDecimal = true;
 				continue;
 			default:
-				errorMessage = "Unexpected character in input string, not a valid equation.";
+				errorMessage = invalidCharErrorMessage;
 				return false;
 			}
 		}

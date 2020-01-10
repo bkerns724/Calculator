@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "operation.h"
+#include "equationErrorMessages.h"
 
 class equation final
 {
@@ -25,7 +26,7 @@ private:
 	std::vector<double> numbers;
 	std::string stringRepresentation;
 	std::string errorMessage;
-
+	
 	double answer;
 	bool isValid;
 };

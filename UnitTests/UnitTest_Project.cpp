@@ -2,6 +2,8 @@
 #include "CppUnitTest.h"
 
 #include "equation.h"
+#include "equationErrorMessages.h"
+
 #include <string>
 #include <vector>
 #include <math.h>
@@ -12,10 +14,18 @@ using namespace std;
 
 namespace UnitTestsNamespace
 {
-	const double testTolerance = 1e-6;
+	double testTolerance = 1e-6;
 
-	const string basicTestEquation = "2+2";
-	const double basicTestAnswer = 4;
+	string basicTestEquation = "2+2";
+	double basicTestAnswer = 4;
+
+	string negativeTestEquation = "2 / -2";
+	double negativeTestAnswer = -1;
+
+	string decimalTestEquation = "2.4 * 2";
+	double decimalTestAnswer = 4.8;
+
+	string divByZeroEquation = "5/0";
 
 	// Make sure the order is correct for each possible combination of operators where order matters
 	vector<string> orderOperatorEquations = { "2+3-5", "2+3*5", "2+3/5", "2+3^5",
@@ -38,50 +48,66 @@ namespace UnitTestsNamespace
 	string nestedParenthesesEquation = "(11/(7-((2+3)*5)))^2";
 	double nestedParenthesesAnswer = pow(11.0/18.0, 2);
 
-	string divByZeroEquation = "5/0";
+	// Due to the way equation.cpp is structured, these need to be tested separately for expectingOperator = true and false
+	string invalidCharString1 = "5 whee";
+	string invalidCharString2 = "5 + whee";
 
-	TEST_CLASS(UnitTestsClass)
+	// Number where an operator is expected
+	string numWhereOperString = "5 6";
+
+	// Decimal where an operator is expected
+	string decWhereOperString = "5 .";
+
+	// Multiple decimals in one number
+	string doubleDecString = "5 + 6.4.3";
+
+	// Right where number expected
+	string rightWhereNumString = "5 + )";
+	// Left or Right where digits expected after decimal
+	string leftWhereDigString = "5 + 6.(";
+	string rightWhereDigString = "5 + 6.)";
+	// Left where operator expected
+	string leftWhereOp = "5 (";
+	// Rights > Lefts
+	string TooManyRightString = "(5 + 6) - 7)";
+
+	// Operator where a number expected
+	string OperWhereNumString = "5 + /";
+	// Operator where digits expected after a decimal.
+	string OperWhereDigString = "5.+";
+
+	// White space immediately after a decimal
+	string WhiteWhereDig = "5. 6";
+
+	// String ends with a number expected
+	string endWhereNum = "5 +";
+	// String ends with unmatched parentheses (too many Lefts)
+	string TooManyLeftString = "(5 + 6";
+
+	void EquationTest(string testEquation, double testAnswer)
+	{
+		equation testEq = equation(testEquation);
+		string errorMessage = "Test failed for equation: " + testEquation + "\nIt gave an answer of " + to_string(testEq.Answer());
+		wstring errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
+		Assert::AreEqual(testAnswer, testEq.Answer(), testTolerance, errorMessageWstring.c_str());
+	}
+
+	TEST_CLASS(BasicTestClass)
 	{
 	public:
 
 		TEST_METHOD(BasicTest)
 		{
-			equation testEq = equation(basicTestEquation);
-			string errorMessage = "Test failed for equation: " + basicTestEquation + "\nIt gave an answer of " + to_string(testEq.Answer());
-			wstring errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
-			Assert::AreEqual(basicTestAnswer, testEq.Answer(), testTolerance, errorMessageWstring.c_str());
+			EquationTest(basicTestEquation, basicTestAnswer);
 		}
 
-		TEST_METHOD(OrderOperatorTest)
+		TEST_METHOD(NegativeTest)
 		{
-			equation testEq;
-			string errorMessage;
-			for (int i = 0; i < orderOperatorEquations.size(); i++) {
-				testEq.NewEquation(orderOperatorEquations[i]);
-				errorMessage = "Test failed for equation: " + orderOperatorEquations[i] + "\nIt gave an answer of " + to_string(testEq.Answer());
-				wstring errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
-				Assert::AreEqual(orderOperatorAnswers[i], testEq.Answer(), testTolerance, errorMessageWstring.c_str());
-			}
+			EquationTest(negativeTestEquation, negativeTestAnswer);
 		}
-
-		TEST_METHOD(OrderParenthesesTest)
+		TEST_METHOD(DecimalTest)
 		{
-			equation testEq;
-			string errorMessage;
-			for (int i = 0; i < orderParenthesesEquations.size(); i++) {
-				testEq.NewEquation(orderParenthesesEquations[i]);
-				errorMessage = "Test failed for equation: " + orderParenthesesEquations[i] + "\nIt gave an answer of " + to_string(testEq.Answer());
-				wstring errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
-				Assert::AreEqual(orderParenthesesAnswers[i], testEq.Answer(), testTolerance, errorMessageWstring.c_str());
-			}
-		}
-
-		TEST_METHOD(nestedParenthesesTest)
-		{
-			equation testEq = equation(nestedParenthesesEquation);
-			string errorMessage = "Test failed for equation: " + nestedParenthesesEquation + "\nIt gave an answer of " + to_string(testEq.Answer());
-			wstring errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
-			Assert::AreEqual(nestedParenthesesAnswer, testEq.Answer(), testTolerance, errorMessageWstring.c_str());
+			EquationTest(decimalTestEquation, decimalTestAnswer);
 		}
 
 		TEST_METHOD(isValidTest) {
@@ -103,7 +129,90 @@ namespace UnitTestsNamespace
 
 		TEST_METHOD(divByZeroTest) {
 			equation testEq = equation(divByZeroEquation);
+			string errorMessage = "Division by zero doesn't return nan";
+			wstring errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
 			Assert::IsTrue(isnan(testEq.Answer()));
 		}
+	};
+
+	TEST_CLASS(OrderOfOperationsTestClass)
+	{
+	public:
+
+		TEST_METHOD(OrderOperatorTest)
+		{
+			for (int i = 0; i < orderOperatorEquations.size(); i++)
+				EquationTest(orderOperatorEquations[i], orderOperatorAnswers[i]);
+		}
+
+		TEST_METHOD(OrderParenthesesTest)
+		{
+			for (int i = 0; i < orderParenthesesEquations.size(); i++)
+				EquationTest(orderParenthesesEquations[i], orderParenthesesAnswers[i]);
+		}
+
+		TEST_METHOD(nestedParenthesesTest)
+		{
+			EquationTest(nestedParenthesesEquation, nestedParenthesesAnswer);
+		}
+	};
+
+	TEST_CLASS(ParsingTestClass)
+	{
+	public:
+
+		void InvalidEquationTest(string testEquation, string testErrorMessage)
+		{
+			equation testEq = equation(testEquation);
+			string errorMessage = "Test failed for string: " + testEquation + "\nIt was incorrectly seen as a valid string.";
+			wstring errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
+			Assert::IsFalse(testEq.IsValid(), errorMessageWstring.c_str());
+
+			errorMessage = "Test failed for string: " + testEquation + "\nIt gave this incorrect error message: " + testEq.GetErrorMessage();
+			errorMessageWstring = wstring(errorMessage.begin(), errorMessage.end());
+			Assert::AreEqual(testEq.GetErrorMessage(), testErrorMessage, errorMessageWstring.c_str());
+		}
+
+		TEST_METHOD(invalidCharTest)
+		{
+			InvalidEquationTest(invalidCharString1, invalidCharErrorMessage);
+			InvalidEquationTest(invalidCharString2, invalidCharErrorMessage);
+		}
+
+		TEST_METHOD(numWhereOperTest)
+		{
+			InvalidEquationTest(numWhereOperString, numWhereOperErrorMessage);
+		}
+
+		// Decimal anywhere that isn't immediately after a number
+		TEST_METHOD(decTest)
+		{
+			InvalidEquationTest(decWhereOperString, decWhereOperErrorMessage);
+			InvalidEquationTest(doubleDecString, doubleDecErrorMessage);
+		}
+		/*
+		// Right where number expected
+		string rightWhereNumString = "5 + )";
+		// Left or Right where digits expected after decimal
+		string leftWhereDigString = "5 + 6.(";
+		string rightWhereDigString = "5 + 6.)";
+		// Left where operator expected
+		string leftWhereOp = "5 (";
+		// Rights > Lefts
+		string TooManyRightString = "(5 + 6) - 7)";
+
+		// Operator where a number expected
+		string OperWhereNumString = "5 + /";
+		// Operator where digits expected after a decimal.
+		string OperWhereDigString = "5. +";
+
+		// White space immediately after a decimal
+		string WhiteWhereDig = "5. 6";
+
+		// String ends with a number expected
+		string endWhereNum = "5 +";
+		// String ends with unmatched parentheses (too many Lefts)
+		string TooManyLeftString = "(5 + 6";
+		*/
 	};
 }
