@@ -16,8 +16,9 @@ namespace UnitTestsNamespace
 {
 	double testTolerance = 1e-6;
 
-	string basicTestEquation = "2+2";
-	double basicTestAnswer = 4;
+	string whiteSpaceTestEquation1 = "2+2";
+	string whiteSpaceTestEquation2 = "2 + \t\n2";
+	double whiteSpaceTestAnswer = 4;
 
 	string negativeTestEquation = "2 / -2";
 	double negativeTestAnswer = -1;
@@ -48,7 +49,9 @@ namespace UnitTestsNamespace
 	string nestedParenthesesEquation = "(11/(7-((2+3)*5)))^2";
 	double nestedParenthesesAnswer = pow(11.0/18.0, 2);
 
-	// Due to the way equation.cpp is structured, these need to be tested separately for expectingOperator = true and false
+	// Due to the way equation.cpp is structured, these often need to be tested separately for expectingOperator = true and false
+	// Also need to test cases with a '-' differently than other operators sometimes because it can be either an operator or the start of a number
+
 	string invalidCharString1 = "5 whee";
 	string invalidCharString2 = "5 + whee";
 
@@ -62,27 +65,34 @@ namespace UnitTestsNamespace
 	string doubleDecString = "5 + 6.4.3";
 
 	// Right where number expected
-	string rightWhereNumString = "5 + )";
-	// Left or Right where digits expected after decimal
-	string leftWhereDigString = "5 + 6.(";
-	string rightWhereDigString = "5 + 6.)";
+	string rightWhereNumString = "(5 + )";
+	// Left or Right where digits expected after decimal or negative sign
+	string leftWhereDigString1 = "5 + .(3+4)";
+	string leftWhereDigString2 = "5 + -(3+4)";
+	string rightWhereDigString1 = "(5 + -)";
+	string rightWhereDigString2 = "(5 + .)";
 	// Left where operator expected
-	string leftWhereOp = "5 (";
+	string leftWhereOperString = "5 (3+4)";
 	// Rights > Lefts
-	string TooManyRightString = "(5 + 6) - 7)";
+	string tooManyRightString = "(5 + 6) * 7)";
 
 	// Operator where a number expected
-	string OperWhereNumString = "5 + /";
-	// Operator where digits expected after a decimal.
-	string OperWhereDigString = "5.+";
+	string operWhereNumString1 = "5 -*4";
+	string operWhereNumString2 = "5 +*3";
+	string operWhereDigString1 = "5 +--4";
+	string operWhereDigString2 = "5 +-*4";
+	string operWhereDigString3 = "5 + .*";
 
-	// White space immediately after a decimal
-	string WhiteWhereDig = "5. 6";
+	// White space immediately after a negative sign or lone decimal
+	string whiteWhereDigString1 = "5 + - ";
+	string whiteWhereDigString2 = "5 + . ";
 
 	// String ends with a number expected
-	string endWhereNum = "5 +";
+	string endWhereNumString1 = "5 +";
+	string endWhereNumString2 = "5 + .";
+	string endWhereNumString3 = "5 + -";
 	// String ends with unmatched parentheses (too many Lefts)
-	string TooManyLeftString = "(5 + 6";
+	string tooManyLeftString = "(5 + 6";
 
 	void EquationTest(string testEquation, double testAnswer)
 	{
@@ -96,9 +106,10 @@ namespace UnitTestsNamespace
 	{
 	public:
 
-		TEST_METHOD(BasicTest)
+		TEST_METHOD(WhiteSpaceTest)
 		{
-			EquationTest(basicTestEquation, basicTestAnswer);
+			EquationTest(whiteSpaceTestEquation1, whiteSpaceTestAnswer);
+			EquationTest(whiteSpaceTestEquation2, whiteSpaceTestAnswer);
 		}
 
 		TEST_METHOD(NegativeTest)
@@ -184,35 +195,44 @@ namespace UnitTestsNamespace
 			InvalidEquationTest(numWhereOperString, numWhereOperErrorMessage);
 		}
 
-		// Decimal anywhere that isn't immediately after a number
-		TEST_METHOD(decTest)
+		TEST_METHOD(badDecTest)
 		{
 			InvalidEquationTest(decWhereOperString, decWhereOperErrorMessage);
 			InvalidEquationTest(doubleDecString, doubleDecErrorMessage);
 		}
-		/*
-		// Right where number expected
-		string rightWhereNumString = "5 + )";
-		// Left or Right where digits expected after decimal
-		string leftWhereDigString = "5 + 6.(";
-		string rightWhereDigString = "5 + 6.)";
-		// Left where operator expected
-		string leftWhereOp = "5 (";
-		// Rights > Lefts
-		string TooManyRightString = "(5 + 6) - 7)";
 
-		// Operator where a number expected
-		string OperWhereNumString = "5 + /";
-		// Operator where digits expected after a decimal.
-		string OperWhereDigString = "5. +";
+		TEST_METHOD(badParanthesesTest)
+		{
+			InvalidEquationTest(rightWhereNumString, rightWhereNumErrorMessage);
+			InvalidEquationTest(leftWhereDigString1, leftWhereDigErrorMessage);
+			InvalidEquationTest(leftWhereDigString2, leftWhereDigErrorMessage);
+			InvalidEquationTest(rightWhereDigString1, rightWhereDigErrorMessage);
+			InvalidEquationTest(rightWhereDigString2, rightWhereDigErrorMessage);
+			InvalidEquationTest(leftWhereOperString, leftWhereOperErrorMessage);
+			InvalidEquationTest(tooManyRightString, tooManyRightErrorMessage);
+		}
 
-		// White space immediately after a decimal
-		string WhiteWhereDig = "5. 6";
+		TEST_METHOD(badOperTest)
+		{
+			InvalidEquationTest(operWhereNumString1, operWhereNumErrorMessage);
+			InvalidEquationTest(operWhereNumString2, operWhereNumErrorMessage);
+			InvalidEquationTest(operWhereDigString1, operWhereDigErrorMessage);
+			InvalidEquationTest(operWhereDigString2, operWhereDigErrorMessage);
+			InvalidEquationTest(operWhereDigString3, operWhereDigErrorMessage);
+		}
 
-		// String ends with a number expected
-		string endWhereNum = "5 +";
-		// String ends with unmatched parentheses (too many Lefts)
-		string TooManyLeftString = "(5 + 6";
-		*/
+		TEST_METHOD(badWhiteTest)
+		{
+			InvalidEquationTest(whiteWhereDigString1, whiteWhereDigErrorMessage);
+			InvalidEquationTest(whiteWhereDigString2, whiteWhereDigErrorMessage);
+		}
+
+		TEST_METHOD(badStringEndTest)
+		{
+			InvalidEquationTest(endWhereNumString1, endWhereNumErrorMessage);
+			InvalidEquationTest(endWhereNumString2, endWhereNumErrorMessage);
+			InvalidEquationTest(endWhereNumString3, endWhereNumErrorMessage);
+			InvalidEquationTest(tooManyLeftString, tooManyLeftErrorMessage);
+		}
 	};
 }

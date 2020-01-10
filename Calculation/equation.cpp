@@ -8,13 +8,28 @@
 #include <iterator>
 #include <math.h>
 
+/*
+Add a function for 
+
+				if (stringRepresentation.length() - 1 == i)
+				{
+					double number = atof(numberString.c_str());
+					numbers.push_back(number);
+					numberString.clear();
+					numberStarted = false;
+					acceptingDecimal = true;
+					validNumber = false;
+				}
+				?
+*/
+
 using namespace std;
 
 equation::equation()
 {
 	isValid = false;
 	answer = 0;
-	errorMessage = "No equation";
+	errorMessage = noEquationErrorMessage;
 }
 
 equation::equation(string equationString)
@@ -67,7 +82,7 @@ bool equation::ParseString()
 
 	bool expectingOperator = false;
 	bool acceptingDecimal = true;
-	bool hasNumeric = false;
+	bool validNumber = false;
 	bool numberStarted = false;
 
 	string numberString = "";
@@ -89,7 +104,7 @@ bool equation::ParseString()
 				}
 				else
 				{
-					errorMessage = "Left parenthesis in unexpected location, not a valid equation.";
+					errorMessage = leftWhereDigErrorMessage;
 					return false;
 				}
 			case ' ':
@@ -98,18 +113,18 @@ bool equation::ParseString()
 				if (numberStarted)
 				{
 					expectingOperator = true;
-					if (hasNumeric)
+					if (validNumber)
 					{
 						double number = atof(numberString.c_str());
 						numbers.push_back(number);
 						numberString.clear();
 						numberStarted = false;
 						acceptingDecimal = true;
-						hasNumeric = false;
+						validNumber = false;
 					}
 					else
 					{
-						errorMessage = "White space where valid number expected, not a valid equation.";
+						errorMessage = whiteWhereDigErrorMessage;
 						return false;
 					}
 				}
@@ -126,7 +141,7 @@ bool equation::ParseString()
 			case '0':
 				numberString += currentChar;
 				numberStarted = true;
-				hasNumeric = true;
+				validNumber = true;
 
 				if (stringRepresentation.length() - 1 == i)
 				{
@@ -135,7 +150,7 @@ bool equation::ParseString()
 					numberString.clear();
 					numberStarted = false;
 					acceptingDecimal = true;
-					hasNumeric = false;
+					validNumber = false;
 				}
 
 				continue;
@@ -152,18 +167,18 @@ bool equation::ParseString()
 					return false;
 				}
 
-				if (hasNumeric && stringRepresentation.length() - 1 == i)
+				if (validNumber && stringRepresentation.length() - 1 == i)
 				{
 					double number = atof(numberString.c_str());
 					numbers.push_back(number);
 					numberString.clear();
 					numberStarted = false;
 					acceptingDecimal = true;
-					hasNumeric = false;
+					validNumber = false;
 				}
 				else if (stringRepresentation.length() - 1 == i)
 				{
-					errorMessage = "End of equation where valid number expected, not a valid equation.";
+					errorMessage = endWhereNumErrorMessage;
 					return false;
 				}
 
@@ -174,28 +189,28 @@ bool equation::ParseString()
 					parenthesesCount--;
 					if (parenthesesCount < 0)
 					{
-						errorMessage = "Right parenthesis without matching left parenthesis, not a valid equation.";
+						errorMessage = tooManyRightErrorMessage;
 						return false;
 					}
-					if (hasNumeric)
+					if (validNumber)
 					{
 						double number = atof(numberString.c_str());
 						numbers.push_back(number);
 						numberString.clear();
 						numberStarted = false;
 						acceptingDecimal = true;
-						hasNumeric = false;
+						validNumber = false;
 						expectingOperator = true;
 					}
 					else
 					{
-						errorMessage = "Right parenthesis where valid number expected, not a valid equation.";
+						errorMessage = rightWhereDigErrorMessage;
 						return false;
 					}
 				}
 				else
 				{
-					errorMessage = "Right parenthesis in unexpected location, not a valid equation.";
+					errorMessage = rightWhereNumErrorMessage;
 					return false;
 				}
 				continue;
@@ -207,7 +222,7 @@ bool equation::ParseString()
 
 					if (stringRepresentation.length() - 1 == i)
 					{
-						errorMessage = "End of equation where valid number expected, not a valid equation.";
+						errorMessage = endWhereNumErrorMessage;
 						return false;
 					}
 
@@ -219,21 +234,21 @@ bool equation::ParseString()
 			case '^':
 				if (!numberStarted)
 				{
-					errorMessage = "Arithmetic operator in unexpected location, not a valid equation.";
+					errorMessage = operWhereNumErrorMessage;
 					return false;
 				}
-				if (hasNumeric)
+				if (validNumber)
 				{
 					double number = atof(numberString.c_str());
 					numbers.push_back(number);
 					numberString.clear();
 					numberStarted = false;
 					acceptingDecimal = true;
-					hasNumeric = false;
+					validNumber = false;
 				}
 				else
 				{
-					errorMessage = "Operator where valid number expected, not a valid equation.";
+					errorMessage = operWhereDigErrorMessage;
 					return false;
 				}
 				priority = 3 * parenthesesCount;
@@ -256,7 +271,7 @@ bool equation::ParseString()
 			switch (currentChar)
 			{
 			case '(':
-				errorMessage = "Left parenthesis in unexpected location, not a valid equation.";
+				errorMessage = leftWhereOperErrorMessage;
 				return false;
 			case ' ':
 			case '\n':
@@ -281,7 +296,7 @@ bool equation::ParseString()
 				parenthesesCount--;
 				if (parenthesesCount < 0)
 				{
-					errorMessage = "Right parenthesis without matching left parenthesis, not a valid equation";
+					errorMessage = tooManyRightErrorMessage;
 					return false;
 				}
 				continue;
@@ -290,7 +305,6 @@ bool equation::ParseString()
 			case '/':
 			case '*':
 			case '^':
-				expectingOperator = false;
 				priority = 3 * parenthesesCount;
 				if ('*' == currentChar || '/' == currentChar)
 					priority++;
@@ -312,13 +326,13 @@ bool equation::ParseString()
 
 	if (parenthesesCount > 0)
 	{
-		errorMessage = "More left parentheses than right parentheses, not a valid equation.";
+		errorMessage = tooManyLeftErrorMessage;
 		return false;
 	}
 
 	if (operations.size() + 1 != numbers.size() && operations.size() > 0)
 	{
-		errorMessage = "Operator at end of equation without a number to operate on, not a valid equation.";
+		errorMessage = endWhereNumErrorMessage;
 		return false;
 	}
 
