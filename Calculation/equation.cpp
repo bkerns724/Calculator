@@ -8,21 +8,6 @@
 #include <iterator>
 #include <math.h>
 
-/*
-Add a function for 
-
-				if (stringRepresentation.length() - 1 == i)
-				{
-					double number = atof(numberString.c_str());
-					numbers.push_back(number);
-					numberString.clear();
-					numberStarted = false;
-					acceptingDecimal = true;
-					validNumber = false;
-				}
-				?
-*/
-
 using namespace std;
 
 equation::equation()
@@ -87,6 +72,16 @@ bool equation::ParseString()
 
 	string numberString = "";
 
+	auto pushNumber = [&]()
+	{
+		double number = atof(numberString.c_str());
+		numbers.push_back(number);
+		numberString.clear();
+		numberStarted = false;
+		acceptingDecimal = true;
+		validNumber = false;
+	};
+
 	for (int i = 0; i < stringRepresentation.length(); i++)
 	{
 		char currentChar = stringRepresentation[i];
@@ -115,12 +110,7 @@ bool equation::ParseString()
 					expectingOperator = true;
 					if (validNumber)
 					{
-						double number = atof(numberString.c_str());
-						numbers.push_back(number);
-						numberString.clear();
-						numberStarted = false;
-						acceptingDecimal = true;
-						validNumber = false;
+						pushNumber();
 					}
 					else
 					{
@@ -145,12 +135,7 @@ bool equation::ParseString()
 
 				if (stringRepresentation.length() - 1 == i)
 				{
-					double number = atof(numberString.c_str());
-					numbers.push_back(number);
-					numberString.clear();
-					numberStarted = false;
-					acceptingDecimal = true;
-					validNumber = false;
+					pushNumber();
 				}
 
 				continue;
@@ -169,12 +154,7 @@ bool equation::ParseString()
 
 				if (validNumber && stringRepresentation.length() - 1 == i)
 				{
-					double number = atof(numberString.c_str());
-					numbers.push_back(number);
-					numberString.clear();
-					numberStarted = false;
-					acceptingDecimal = true;
-					validNumber = false;
+					pushNumber();
 				}
 				else if (stringRepresentation.length() - 1 == i)
 				{
@@ -194,12 +174,7 @@ bool equation::ParseString()
 					}
 					if (validNumber)
 					{
-						double number = atof(numberString.c_str());
-						numbers.push_back(number);
-						numberString.clear();
-						numberStarted = false;
-						acceptingDecimal = true;
-						validNumber = false;
+						pushNumber();
 						expectingOperator = true;
 					}
 					else
@@ -239,12 +214,7 @@ bool equation::ParseString()
 				}
 				if (validNumber)
 				{
-					double number = atof(numberString.c_str());
-					numbers.push_back(number);
-					numberString.clear();
-					numberStarted = false;
-					acceptingDecimal = true;
-					validNumber = false;
+					pushNumber();
 				}
 				else
 				{
